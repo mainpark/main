@@ -2,52 +2,44 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>HBC 일봉 차트 (LBank HB/USDT)</title>
+  <title>HBC 차트 (LBank HB/USDT)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
   <style>
-    body { margin:0; background:#111; }
+    body { margin:0; background:#000; }
     #chart { width:100vw; height:100vh; }
   </style>
 </head>
 <body>
   <div id="chart"></div>
-  
+
   <script>
     const chart = LightweightCharts.createChart(document.getElementById('chart'), {
-      layout: { background: { color: '#111' }, textColor: '#fff' },
-      grid: {
-        vertLines: { color: '#333' },
-        horzLines: { color: '#333' }
-      },
+      layout: { background: { color: '#000' }, textColor: '#fff' },
       width: window.innerWidth,
-      height: window.innerHeight,
+      height: window.innerHeight
     });
 
     const series = chart.addCandlestickSeries();
 
     async function load() {
-      const res = await fetch('https://astonishing-pothos-6b9433.netlify.app/.netlify/functions/hbc');
-      const json = await res.json();
+      try {
+        const res = await fetch("/.netlify/functions/hbc");  // ★ 반드시 이 URL이어야 함
+        const json = await res.json();
 
-      if (!json.data || !Array.isArray(json.data)) {
-        console.error('데이터 없음');
-        return;
+        series.setData(json);
+        chart.timeScale().fitContent();
+
+      } catch (e) {
+        console.error("차트 데이터 오류:", e);
       }
-
-      const candles = json.data.map(c => ({
-        time: c[0] / 1000,
-        open: parseFloat(c[1]),
-        high: parseFloat(c[3]),
-        low: parseFloat(c[4]),
-        close: parseFloat(c[2])
-      }));
-
-      series.setData(candles);
-      chart.timeScale().fitContent();
     }
 
     load();
+
+    window.addEventListener('resize', () => {
+      chart.applyOptions({ width: window.innerWidth, height: window.innerHeight });
+    });
   </script>
 </body>
 </html>
