@@ -1,26 +1,15 @@
 export default async () => {
   try {
-    const url = "https://www.lbank.com/v2/kline.do?symbol=hb_usdt&size=200&step=14400";
+    // LBank Official API (1 Day Candlestick)
+    const url = "https://api.lbkex.com/v2/kline.do?symbol=hb_usdt&type=day&size=200";
 
     const response = await fetch(url, {
-      headers: {
-        "accept": "application/json,text/plain,*/*",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36"
-      }
+      headers: { "accept": "application/json" }
     });
 
-    const text = await response.text();
+    const json = await response.json();
 
-    // HTML 체크
-    if (text.startsWith("<")) {
-      return new Response(JSON.stringify({
-        error: true,
-        message: "LBank API returned HTML instead of JSON (blocked)"
-      }), { status: 500 });
-    }
-
-    const json = JSON.parse(text);
-
+    // LBank returns: { "result": "true", "data": [...] }
     if (!json || !json.data) {
       return new Response(JSON.stringify({
         error: true,
@@ -28,12 +17,13 @@ export default async () => {
       }), { status: 500 });
     }
 
+    // Convert to Lightweight-charts format
     const candles = json.data.map(c => ({
       time: c[0] / 1000,
       open: parseFloat(c[1]),
       close: parseFloat(c[2]),
       high: parseFloat(c[3]),
-      low: parseFloat(c[4])
+      low: parseFloat(c[4]),
     }));
 
     return new Response(JSON.stringify(candles), {
@@ -47,6 +37,7 @@ export default async () => {
     }), { status: 500 });
   }
 };
+
 
 
 
