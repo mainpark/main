@@ -1,6 +1,7 @@
 export default async () => {
   try {
-    const url = "https://api.lbkex.com/v2/kline.do?symbol=hb_usdt&size=200&step=1d";
+    // LBank 최신 kline API (1day interval)
+    const url = "https://api.lbkex.com/v2/kline.do?symbol=hb_usdt&size=200&timeType=day";
 
     const response = await fetch(url, {
       headers: { "accept": "application/json" }
@@ -8,14 +9,13 @@ export default async () => {
 
     const json = await response.json();
 
-    if (!json || !json.data) {
+    if (!json || !json.data || json.data.length === 0) {
       return new Response(JSON.stringify({
         error: true,
         message: "No candle data returned"
       }), { status: 500 });
     }
 
-    // LBank 데이터 구조: [timestamp, open, close, high, low, volume]
     const candles = json.data.map(c => ({
       time: c[0] / 1000,
       open: parseFloat(c[1]),
@@ -35,5 +35,6 @@ export default async () => {
     }), { status: 500 });
   }
 };
+
 
 
