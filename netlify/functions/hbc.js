@@ -1,6 +1,6 @@
 export default async () => {
   try {
-    // LBank HB/USDT 캔들 API (1day interval)
+    // LBank HB/USDT 캔들 API (1일봉)
     const url = "https://www.lbank.com/v2/kline.do?symbol=hb_usdt&size=200&step=14400";
 
     const response = await fetch(url, {
