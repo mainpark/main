@@ -1,7 +1,7 @@
 export default async () => {
   try {
-    // LBank Official API (1 Day Candlestick)
-    const url = "https://api.lbkex.com/v2/kline.do?symbol=hb_usdt&type=day&size=200";
+    // LBank HB/USDT 일봉(1day) API
+    const url = "https://www.lbank.com/v2/kline.do?symbol=hb_usdt&size=200&step=1440";
 
     const response = await fetch(url, {
       headers: { "accept": "application/json" }
@@ -9,21 +9,19 @@ export default async () => {
 
     const json = await response.json();
 
-    // LBank returns: { "result": "true", "data": [...] }
-    if (!json || !json.data) {
+    if (!json || !json.data || !Array.isArray(json.data)) {
       return new Response(JSON.stringify({
         error: true,
         message: "No candle data returned"
       }), { status: 500 });
     }
 
-    // Convert to Lightweight-charts format
     const candles = json.data.map(c => ({
       time: c[0] / 1000,
       open: parseFloat(c[1]),
       close: parseFloat(c[2]),
       high: parseFloat(c[3]),
-      low: parseFloat(c[4]),
+      low: parseFloat(c[4])
     }));
 
     return new Response(JSON.stringify(candles), {
@@ -37,6 +35,7 @@ export default async () => {
     }), { status: 500 });
   }
 };
+
 
 
 
