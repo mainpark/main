@@ -1,25 +1,24 @@
-export default async function handler(event, context) {
+import fetch from "node-fetch";
+
+export const handler = async () => {
   try {
-    const url = "https://www.lbank.com/v2/ticker/24hr.do?symbol=hb_usdt";
-
-    const response = await fetch(url);
-    const data = await response.json();
-
-    // LBank 데이터 구조 변환
-    const klineUrl = "https://www.lbank.com/v2/kline.do?symbol=hb_usdt&size=200&type=day";
-    const klineRes = await fetch(klineUrl);
-    const klineJson = await klineRes.json();
+    // LBANK HB/USDT 일봉 데이터
+    const url = "https://api.lbkex.com/v2/kline.do?symbol=hb_usdt&size=500&type=day";
+    const r = await fetch(url);
+    const json = await r.json();
 
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data: klineJson.data })
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*"
+      },
+      body: JSON.stringify(json)
     };
-
-  } catch (e) {
+  } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: true, message: e.toString() })
+      body: JSON.stringify({ error: true, message: err.message })
     };
   }
-}
+};
