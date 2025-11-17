@@ -21,21 +21,25 @@
     const series = chart.addCandlestickSeries();
 
     async function load() {
-      const res = await fetch('/.netlify/functions/hbc');
-      const json = await res.json();
-      if (!json.data || !Array.isArray(json.data)) {
-        console.error('데이터 없음');
-        return;
+      try {
+        const res = await fetch('/.netlify/functions/hbc');
+        const json = await res.json();
+        if (!json.data || !Array.isArray(json.data)) {
+          console.error('데이터 없음', json);
+          return;
+        }
+        const candles = json.data.map(c => ({
+          time: c[0] / 1000,
+          open: parseFloat(c[1]),
+          high: parseFloat(c[3]),
+          low: parseFloat(c[4]),
+          close: parseFloat(c[2]),
+        }));
+        series.setData(candles);
+        chart.timeScale().fitContent();
+      } catch (e) {
+        console.error('차트 로딩 오류', e);
       }
-      const candles = json.data.map(c => ({
-        time: c[0]/1000,
-        open: parseFloat(c[1]),
-        high: parseFloat(c[3]),
-        low: parseFloat(c[4]),
-        close: parseFloat(c[2])
-      }));
-      series.setData(candles);
-      chart.timeScale().fitContent();
     }
 
     load();
