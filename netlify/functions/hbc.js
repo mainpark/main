@@ -1,20 +1,24 @@
-export default async (req, context) => {
+export async function handler() {
   try {
-    const url = "https://api.lbkex.com/v1/market/kline?symbol=hb_usdt&type=1day&size=200";
+    const url = "https://www.lbank.com/v2/klines.do?symbol=hb_usdt&type=day";
 
     const response = await fetch(url);
-    const json = await response.json();
+    const data = await response.json();
 
-    return new Response(JSON.stringify(json), {
-      headers: { "Content-Type": "application/json" }
-    });
-
-  } catch (err) {
-    return new Response(JSON.stringify({
-      error: true,
-      message: err.message
-    }), {
-      headers: { "Content-Type": "application/json" }
-    });
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data }),
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        error: true,
+        message: error.message,
+      }),
+    };
   }
-};
+}
+
