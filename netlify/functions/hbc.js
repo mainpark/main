@@ -1,18 +1,30 @@
 export default async () => {
   try {
-    const url = "https://api.lbkex.com/v2/kline.do?symbol=hb_usdt&size=200&step=14400";
+    const url = "https://www.lbank.com/v2/kline.do?symbol=hb_usdt&size=200&step=14400";
 
     const response = await fetch(url, {
-      headers: { "accept": "application/json" }
+      headers: {
+        "accept": "application/json,text/plain,*/*",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36"
+      }
     });
 
-    const json = await response.json();
+    const text = await response.text();
+
+    // HTML 체크
+    if (text.startsWith("<")) {
+      return new Response(JSON.stringify({
+        error: true,
+        message: "LBank API returned HTML instead of JSON (blocked)"
+      }), { status: 500 });
+    }
+
+    const json = JSON.parse(text);
 
     if (!json || !json.data) {
       return new Response(JSON.stringify({
         error: true,
-        message: "No candle data returned",
-        raw: json
+        message: "No candle data returned"
       }), { status: 500 });
     }
 
