@@ -1,6 +1,5 @@
 export default async () => {
   try {
-    // LBank Public API (정상 JSON 응답)
     const url = "https://api.lbkex.com/v2/kline.do?symbol=hb_usdt&size=200&step=14400";
 
     const response = await fetch(url, {
@@ -12,7 +11,8 @@ export default async () => {
     if (!json || !json.data) {
       return new Response(JSON.stringify({
         error: true,
-        message: "No candle data returned"
+        message: "No candle data returned",
+        raw: json
       }), { status: 500 });
     }
 
@@ -21,7 +21,7 @@ export default async () => {
       open: parseFloat(c[1]),
       close: parseFloat(c[2]),
       high: parseFloat(c[3]),
-      low: parseFloat(c[4]),
+      low: parseFloat(c[4])
     }));
 
     return new Response(JSON.stringify(candles), {
@@ -35,6 +35,7 @@ export default async () => {
     }), { status: 500 });
   }
 };
+
 
 
 
