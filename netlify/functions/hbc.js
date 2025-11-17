@@ -1,7 +1,7 @@
 export default async () => {
   try {
-    // LBank HB/USDT 캔들 API (1일봉)
-    const url = "https://www.lbank.com/v2/kline.do?symbol=hb_usdt&size=200&step=14400";
+    // LBank 최신 API (1일봉)
+    const url = "https://api.lbkex.com/v3/kline.do?symbol=hb_usdt&size=200&scale=86400";
 
     const response = await fetch(url, {
       headers: { "accept": "application/json" }
@@ -17,7 +17,7 @@ export default async () => {
     }
 
     const candles = json.data.map(c => ({
-      time: c[0] / 1000,
+      time: c[0] / 1000,       // timestamp
       open: parseFloat(c[1]),
       close: parseFloat(c[2]),
       high: parseFloat(c[3]),
@@ -35,4 +35,5 @@ export default async () => {
     }), { status: 500 });
   }
 };
+
 
